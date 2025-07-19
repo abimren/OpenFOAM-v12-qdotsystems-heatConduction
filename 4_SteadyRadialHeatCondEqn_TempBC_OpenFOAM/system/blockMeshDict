@@ -1,0 +1,99 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  12
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters   1;
+
+//variables
+L 0.01;
+r1 0.03;
+r2 0.07;
+
+vertices
+(
+	//Rotation about z axis
+	($r1 0 0)	//0
+	($r2 0 0)	//1
+	(0 $r2 0)	//2
+	(0 $r1 0)	//3	
+	($r1 0 $L)	//4
+	($r2 0 $L)	//5
+	(0 $r2 $L)	//6
+	(0 $r1 $L)	//7
+
+);
+
+blocks
+(
+	//Rotation about z axis
+	hex (0 1 2 3 4 5 6 7) (10 20 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+	//Rotation about z axis
+	//Inner Radius
+	arc 0 3 (#calc "$r1*cos(degToRad(45))" #calc "$r1*sin(degToRad(45))" 0)
+	arc 4 7 (#calc "$r1*cos(degToRad(45))" #calc "$r1*sin(degToRad(45))" $L)
+	//Outer Radius
+	arc 1 2 (#calc "$r2*cos(degToRad(45))" #calc "$r2*sin(degToRad(45))" 0)
+	arc 5 6 (#calc "$r2*cos(degToRad(45))" #calc "$r2*sin(degToRad(45))" $L)	
+);
+
+boundary
+(
+	innerWall
+	{
+		type wall;
+		faces
+		(
+			(3 0 4 7)
+		);
+	}
+	
+	outerWall
+	{
+		type wall;
+		faces
+		(
+			(2 6 5 1)
+		);
+	}
+	
+	symmetryWalls
+	{
+		type wall;
+		faces
+		(
+			(0 1 5 4)
+			(2 3 7 6)
+		);
+	}	
+	
+	emptyWalls
+	{
+		type empty;
+		faces
+		(
+			(0 3 2 1)
+			(6 7 4 5)
+		);
+	}
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
