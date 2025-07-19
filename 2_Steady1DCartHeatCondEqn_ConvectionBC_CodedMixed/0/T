@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  12
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 100;
+
+boundaryField
+{
+    rightWall
+    {
+        type            codedMixed;
+        refValue        uniform 0;
+        refGradient     uniform 0;
+        valueFraction   uniform 1;
+
+        name    convectionBC;
+
+        code
+        #{
+            const scalarField& delta = patch().deltaCoeffs();
+            const scalar h=10.0;
+            const scalar Tinf=15.0;
+            const scalar k=10.0;
+            this->refValue() = Tinf;
+            this->refGrad() = Zero;
+            this->valueFraction() = 1.0/(1.0+k/(h*(1.0/delta)));
+        #};
+    }
+
+    leftWall
+    {
+        type            fixedValue;
+        value           uniform 100;
+    }
+
+    otherWalls
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //
